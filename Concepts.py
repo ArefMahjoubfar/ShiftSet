@@ -4,7 +4,10 @@ Dn= number of total days
 DE_dict= {DayID: number of elements}
 ELn_dict={elementID: number of limitation days}
 Limitations = {elementID: a list of DayIDs}: the day with less index has more priority to reserve.
-Notice: 48h shift: impossible (with true or false coulde be possible), every other day shifts have positive point in calculated difficulty.
+**Notice: 48h shift: impossible (with true or false coulde be possible), every other day shifts have positive point in calculated difficulty.
+**Notice: some individuals prefer to have more shift/some limitations instead of otherwise.
+**Notice: defining higher coefficients for elements with broke limitations with lesser limitations than other with more limitations.
+**Notice: female/male distribution in a shift should be about 50 50(True or False: On, Off)
 Tags= {TeamID:a list of tagged elements}
 Pn= Number of position_category
 Pc_coefficient={position_category: difficulty_coefficient}
@@ -17,7 +20,8 @@ Methods:
 +Setter: loop: a random teamID will be selected, a random day will be selected, a random position_category will be selected. Element will be assigned.
 +Counter: count the difficult days(categorized based oncoefficients), off days, limitations_breaks, position_category assigned, tags_breaks
 +Permission_checker: check if 'Setter' output satisfies the conditions based on 'Counter' provided information. True, false output
-+ Compromiser: if 'Setter' output in no way satisfies the conditions, and everytime 'Permission_checker' returned False, or variance calculated of 'Difficulty_distribution' is not near zero: ===> select the individual with least and most difficulty. with priority to reserve total limitations of setting (including: day limitations, tag limitation, position_category assigned, ...) Based on 'Reserve_limitations_priority' for each individual, ===> 
++ Compromiser: if 'Setter' output in no way satisfies the conditions, and everytime 'Permission_checker' returned False, or variance calculated of 'Difficulty_distribution' is not near zero: ===> select the individual with least and most difficulty. with priority to reserve total limitations of setting (including: day limitations, tag limitation, position_category assigned, ...) Based on 'Reserve_limitations_priority' for each individual, ===> in order to decrease the difficulty of the element with most difficulty, it checks if it changes a shift with the elements with least difficulty what would the calculated difficulty of that element be.if its difference with old calculated difficulty is negative or zero it would be that. And done it goes to the next step. If it is positive, then it checks with other shifts of that individual and then check with shifts of the element with second least difficulty. And it goes on.(if this process was about changing shifts for a team with more individuals, first it looks for shifts with equal number of individuals in a team. If do not satisfy the situation, it looks for x individuals in a shift to replace with.
+
 +Difficulty_distribution={element: difficulty calculated}
 +Variance function: a function to calculate variance of the elements of a dict
 +Limitations_calculated: a function to calculate the score of individual's limitations. E,g. Either tag, day limitations and ...
@@ -25,7 +29,7 @@ Methods:
 +++ Difficulty formula::: ...
 +Repair_tag: a method that repairs broke tag. returns the elements like before. It empties the position of the individual with less difficulty in their tag, join n individual together and will treat them as one individual.
 +Repair_day_limitation: a method that repairs day_limitations for an individual/teamID
-Returns: remove the individual/teamID from one(priority based on individual decision) of shifts that is in limitation_days of individual/teamID. To reset and assign a specific day for their shift. This day will be one of 'Available_days'
+Returns: remove the individual/teamID from one(priority based on individual decision) of shifts that is in limitation_days of individual/teamID and will add that removed day to the 'Available_days' of other individuals. To reset and assign a specific day for their shift. This day will be one of 'Available_days' for that individual/teamID
 +Available_days={element: a list of days resulted from repairing tags, removing other individual shifts due to their repair_day_limitation}
 +Early set: it chooses most/least 'Limitations_calculated' teamID and without breaking any type of limitations, it arranges shifts for the teamID. For next teamID and the next will do it until it reaches to a situation without breaking any type of limitations is not possible any more. According to 'Reserve_limitations_priority' the system breaks the specific type of limitation to satisfy the situation. So after all settings: a distributed difficulty will emerge. 
 
