@@ -2,8 +2,9 @@ from random import randrange
 
 class Individual():
     '''Lorem Ipsum'''
-    def __init__(self, Limit_Days:list, Team_Tags:list, Reserve_Limitations_Priority:list, Individual_Sex) -> None:
+    def __init__(self, Limit_Days:list, Team_Tags:list, Reserve_Limitations_Priority:list, Individual_Sex:str, N_Shifts:int) -> None:
         self.ID='I'+ str(randrange(100,1000)+'M' if Individual_Sex=='M' else 'F')
+        self.N_Shifts= N_Shifts
         self.Limit_Days= Limit_Days     # a list of days that the individual has limitation to have shift.
         self.N_Limit_Days=len(Limit_Days)
         self.TeamTags=Team_Tags     # a list of individuals ID who prefer to be in a team.
@@ -11,6 +12,11 @@ class Individual():
                                                                             # in situations which some limitations must break. break Tags or Limitation Days?
         self.sex=Individual_Sex     # being able to distribute the shifts according to the individuals' sex. it is shown in ID too.
 
+class Team():
+    def __init__(self, Members:list) -> None:
+        self.ID='T'+str(randrange(100,1000))
+        self.Members= Members
+        self.sex=[Members[i].sex for i in Members]      # a list of individuals' sex in the team.
 
 class Course():
     '''Lorem Ipsum'''
@@ -41,11 +47,11 @@ class DataLoader():
     pass
 
 class SetShift():
-    
+    def __init__(self) -> None:
+        
+        pass
     pass
 
 
 if __name__=='__main__':
     pass
-
-
