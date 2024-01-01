@@ -4,10 +4,19 @@ import datetime
 import csv
 
 #-----------------------------------------------------------------------------------------------------------------------
+def ID_Generator(Start:int)->int:
+    counter=Start
+    while True:
+        counter+=1
+        yield counter
+# Creating an ID_Generator obj. we use it in case of need.
+ID_generator=ID_Generator(100)
+#-----------------------------------------------------------------------------------------------------------------------
 class Individual():
     '''Lorem Ipsum'''
     def __init__(self, *, Name, Limit_Days:list, Team_Tags:list, Break_Limitations_Priority:list, Individual_Sex:str, N_Shifts:int) -> None:
-        self.ID='I'+ str(randrange(100,1000)+'M' if Individual_Sex=='M' else 'F') # RAndom has to be edited... it can create identical IDs.#
+       
+        self.ID='I'+ str(next(ID_Generator)+'M' if Individual_Sex=='M' else 'F') # RAndom has to be edited... it can create identical IDs.#
         self.N_Shifts= N_Shifts
         self.Limit_Days= Limit_Days     # a list of days that the individual has limitation to have shift.
         self.N_Limit_Days=len(Limit_Days)
@@ -22,7 +31,7 @@ class Individual():
 class Team():
     '''Lorem Ipsum'''
     def __init__(self, Members:list) -> None:
-        self.ID='T'+str(randrange(100,1000)) # RAndom has to be edited... it can create identical IDs.#
+        self.ID='T'+str(next(ID_Generator)) # RAndom has to be edited... it can create identical IDs.#
         self.Members= Members
         self.sex=[Members[i].sex for i in Members]      # a list of individuals' sex in the team.
 
@@ -39,7 +48,7 @@ class Course():
 class Day():
     '''Lorem Ipsum'''
     def __init__(self, *,Difficulty:int, Is_Holiday:bool, N_assigned_Indiv:int, Individuals_In_Pos:dict={} ) -> None:
-        self.ID='D'+ str(randrange(100,1000))
+        self.ID='D'+ str(next(ID_Generator))
         self.Meta={'Difficulty':Difficulty,
                    'Is_Holiday':Is_Holiday,
                    'N_assigned_Indiv':N_assigned_Indiv,
@@ -138,3 +147,4 @@ DataLoader(r"C:\Users\Aref Mahjoubfar\Desktop\Data_sample-ShiftSet1.csv", r"C:\U
 #-----------------------------------------------------------------------------------------------------------------------
 if __name__=='__main__':
     pass
+
