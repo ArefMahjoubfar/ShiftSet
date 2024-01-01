@@ -67,7 +67,7 @@ class SetShift():
         self.Storage_Address=r'' # where to store generated data(shifts)
 
         ### key: Position Category, Value: list: [number of individual for that position, difficuly score of that position]
-        self.Position_Categories={'ICU':[1,2], 'Endocrinology':[2,2], 'Pulmonology':[1,2], 'Hematology':[1,1]}   
+        self.Position_Categories={'ICU':[1,2], 'Endocrinology':[2,2], 'Pulmonology':[1,2], 'Hematology':[1,1]}   # for now we have to input it manually.
 
         #Sources
         
@@ -76,14 +76,19 @@ class SetShift():
     def Setter():
 
         pass
+    
+    def log():      # to show the status of setting shifts.
+        pass
 
     def Counter():
         pass
 
-    def Permission_Checker(Temp_ID_Picked:str)->bool:       ### In-Progress
+    def Permission_Checker(Temp_ID_Picked:str)->(bool, bool):       ### In-Progress # dont forget to inhibit selecting absolute limitation days
         pass
 
     def Compromiser():
+
+
         pass
 
     def Difficulty_Variance():
@@ -104,21 +109,47 @@ class SetShift():
     def Start():
         pass
 
-    def Random_ID_Picker(elements):     ### In-Progress
+    def Random_ID_Picker(elements):     #Done
         return(randrange(0,len(elements)))
     
-    def Store():
+    def Store(self,Day,Team_Picked):
+
         Shifts_Board=open(r'.csv','w', encoding='utf8') ### In-Progress
+        Shifts_Board.write('\n',Day, ', ',Team_Picked)
         pass
 
-    def Early_Set(self, ):
+    def Day_Fullness_status():      ###In-Progress
+        
+        pass
+
+    def Early_Set():
         for Day in Days:
-            Temp_Team_Picked=SetShift.Random_ID_Picker(Teams)
-            if SetShift.Permission_Checker(Temp_Team_Picked)==True:
-                SetShift.Store()
+            Remained_in_Lottery=Teams.copy()
+            Remained_but_Partial_limitation=[]
+            while True:
+                if Remained_in_Lottery!={}:                                             #check if we can still find teams that satisfies reserving all limitation.
+                    Temp_Team_Picked=SetShift.Random_ID_Picker(Remained_in_Lottery)
+                    if SetShift.Permission_Checker(Temp_Team_Picked)==(True, True):     #True, True: With considering all the limitation days and tags: OK
+                        SetShift.Store(Day,Temp_Team_Picked)
+                        if SetShift.Day_Fullness_status()=='Full':
+                            break
+                    elif SetShift.Permission_Checker(Temp_Team_Picked)==(True, False):   #True, False: absolute limitations: OK, but other limitation days not totally OK.
+                        Remained_but_Partial_limitation.append(Temp_Team_Picked)
+                        Remained_in_Lottery.pop(Temp_Team_Picked)
+                        pass
+                    else:                                                                # False, False: when even absolute limitation days are not OK.
+                        Remained_in_Lottery.pop(Temp_Team_Picked)
+                else:                                                                    # now we try the teams whom have this day in their limitation days.
+                    for Partial_limited_team in Remained_but_Partial_limitation:
+                        while True:
+                            if SetShift.Day_Fullness_status==len(Partial_limited_team):  # Be happy:)
+                                SetShift.Store(Day,Partial_limited_team)
+                            else:                                                        # this is when we should break some teams. :(
+                                pass        ### in-progress
 
 
-        pass
+
+
 
 
 
