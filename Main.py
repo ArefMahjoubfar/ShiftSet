@@ -14,9 +14,9 @@ ID_generator=ID_Generator(100)
 #-----------------------------------------------------------------------------------------------------------------------
 class Individual():
     '''Lorem Ipsum'''
-    def __init__(self, *, Name, Limit_Days:list, Team_Tags:list, Break_Limitations_Priority:list, Individual_Sex:str, N_Shifts:int) -> None:
+    def __init__(self, *, Name, Limit_Days:list, Team_Tags:list, Break_Limitations_Priority:list, Individual_Sex:str, N_Shifts:int, Abs_limitation_days:list) -> None:
        
-        self.ID='I'+ str(next(ID_Generator)+'M' if Individual_Sex=='M' else 'F') # RAndom has to be edited... it can create identical IDs.#
+        self.ID='I'+ str(next(ID_Generator)+'M' if Individual_Sex=='M' else 'F')
         self.N_Shifts= N_Shifts
         self.Limit_Days= Limit_Days     # a list of days that the individual has limitation to have shift.
         self.N_Limit_Days=len(Limit_Days)
@@ -26,12 +26,13 @@ class Individual():
         self.sex=Individual_Sex     # being able to distribute the shifts according to the individuals' sex. it is shown in ID too.
         self.Name=Name # Name of the individual
         self.Limit_Score_Cal=len(Team_Tags)+len(Limit_Days)     # it returns an integer which shows overall view of how much limitation an individual has.
+        self.Abs_limitation_days=Abs_limitation_days        # a list of absolute limitation days for that individual. it is unbreakable.
     
 #-----------------------------------------------------------------------------------------------------------------------
 class Team():
     '''Lorem Ipsum'''
     def __init__(self, Members:list) -> None:
-        self.ID='T'+str(next(ID_Generator)) # RAndom has to be edited... it can create identical IDs.#
+        self.ID='T'+str(next(ID_Generator))
         self.Members= Members
         self.sex=[Members[i].sex for i in Members]      # a list of individuals' sex in the team.
 
@@ -79,7 +80,7 @@ class SetShift():
     def Counter():
         pass
 
-    def Permission_Checker():
+    def Permission_Checker(Temp_ID_Picked:str)->bool:       ### In-Progress
         pass
 
     def Compromiser():
@@ -87,8 +88,6 @@ class SetShift():
 
     def Difficulty_Variance():
         pass
-
-    
 
     def Difficulty_Cal():
         pass
@@ -99,22 +98,35 @@ class SetShift():
     def Repair_Day_limit():
         pass
 
-    def Early_Set(self, ):
-
-        pass
-
     def Plot():
         pass
 
     def Start():
         pass
 
+    def Random_ID_Picker(elements):     ### In-Progress
+        return(randrange(0,len(elements)))
+    
+    def Store():
+        Shifts_Board=open(r'.csv','w', encoding='utf8') ### In-Progress
+        pass
+
+    def Early_Set(self, ):
+        for Day in Days:
+            Temp_Team_Picked=SetShift.Random_ID_Picker(Teams)
+            if SetShift.Permission_Checker(Temp_Team_Picked)==True:
+                SetShift.Store()
+
+
+        pass
+
+
 
 
 #-----------------------------------------------------------------------------------------------------------------------
-def DataLoader(Individuals_File_Address, Days_File_Address):
+def DataLoader(Individuals_File_Address, Days_File_Address, Teams_File_Address):
     '''from csv files. data of individuals, course days, Difficulty coefficients and ...'''
-
+    global Individuals
     Individuals={}  # Total Individuals dict
     with open(Individuals_File_Address, encoding="utf8", newline='') as Individual_csvfile:
         Individuals_reader = csv.reader(Individual_csvfile, delimiter=',', quotechar='|')
@@ -124,12 +136,13 @@ def DataLoader(Individuals_File_Address, Days_File_Address):
                                   Team_Tags=[row[3]],
                                   Break_Limitations_Priority=[row[4]], 
                                   Individual_Sex=[row[5]], 
-                                  N_Shifts=row[6])
+                                  N_Shifts=row[6],
+                                  Abs_limitation_days=row[7])
             Individuals.update({Individual.ID:Individual})   # adding the specific Individual to the Total Individuals Dict
-    
+    global Days
     Days=[] # list of total Days of the course
-    with open(Days_File_Address, encoding="utf8", newline='') as Day_csvfile:
-        Day_reader= csv.reader(Day_csvfile, delimiter=',',quotechar='|')
+    with open(Days_File_Address, encoding="utf8", newline='') as Days_csvfile:
+        Day_reader= csv.reader(Days_csvfile, delimiter=',',quotechar='|')
         for row in Day_reader:
             Day=Day(Difficulty=row[1], 
                     Is_Holiday=[2], 
@@ -137,6 +150,13 @@ def DataLoader(Individuals_File_Address, Days_File_Address):
             Days.append(Day)        # adding the specific Day to the Total Individuals Dict
     
 
+    global Teams
+    Teams={}  # Total Individuals dict
+    with open(Teams_File_Address, encoding="utf8", newline='') as Teams_csvfile:
+        Teams_reader = csv.reader(Teams_csvfile, delimiter=',', quotechar='|')
+        for row in Teams_reader:
+            Team=Team(Members=row[0])
+            Teams.update({Team.ID:Team})   # adding the specific Individual to the Total Individuals Dict
     Course = Course(N_Of_Indiv=len(Individuals), Days=Days, Position_Categories=SetShift.Position_Categories)
 
 # Loading Data
@@ -147,4 +167,3 @@ DataLoader(r"C:\Users\Aref Mahjoubfar\Desktop\Data_sample-ShiftSet1.csv", r"C:\U
 #-----------------------------------------------------------------------------------------------------------------------
 if __name__=='__main__':
     pass
-
