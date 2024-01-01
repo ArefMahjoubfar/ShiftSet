@@ -1,5 +1,5 @@
 #Libraries
-from random import randrange
+import random
 import datetime
 import csv
 
@@ -80,10 +80,14 @@ class SetShift():
     def log():      # to show the status of setting shifts.
         pass
 
-    def Counter():
-        pass
+    def Counter(elements:dict)-> set:     # in-progress
+        def update():
+            updated_counter= None       # for now
+            return updated_counter
+        frequencies=None        # for now
+        return frequencies,(weights:=None)    # for now: based on the individual's count of shifts. 
 
-    def Permission_Checker(Temp_ID_Picked:str)->(bool, bool):       ### In-Progress # dont forget to inhibit selecting absolute limitation days
+    def Permission_Checker(Temp_ID_Picked:str)->(bool, bool, bool, dict):       ### In-Progress # dont forget to inhibit selecting absolute limitation days
         pass
 
     def Compromiser():
@@ -110,7 +114,8 @@ class SetShift():
         pass
 
     def Random_ID_Picker(elements):     #Done
-        return(randrange(0,len(elements)))
+        _, weights=SetShift.Counter(elements)
+        return(random.choices(elements, weights=(weights), k=1))
     
     def Store(self,Day,Team_Picked):
 
@@ -118,34 +123,58 @@ class SetShift():
         Shifts_Board.write('\n',Day, ', ',Team_Picked)
         pass
 
-    def Day_Fullness_status():      ###In-Progress
+    def Day_Capacity_status():      ###In-Progress
         
         pass
 
     def Early_Set():
         for Day in Days:
+            Temp_Individuals=Individuals.copy()
             Remained_in_Lottery=Teams.copy()
             Remained_but_Partial_limitation=[]
+            Individuals_picked_for_the_day=[]
             while True:
                 if Remained_in_Lottery!={}:                                             #check if we can still find teams that satisfies reserving all limitation.
                     Temp_Team_Picked=SetShift.Random_ID_Picker(Remained_in_Lottery)
-                    if SetShift.Permission_Checker(Temp_Team_Picked)==(True, True):     #True, True: With considering all the limitation days and tags: OK
-                        SetShift.Store(Day,Temp_Team_Picked)
-                        if SetShift.Day_Fullness_status()=='Full':
+                    Is_Abs_limitation, Is_partial_limitation, Is_some_member_selected_yesterday, limited_indiv = SetShift.Permission_Checker(Temp_Team_Picked)
+                    
+                    if Is_some_member_selected_yesterday==True:     # if any member of that chosen temp_team was selected yesterday, we remove it from the temp team.
+                        new_temp_team = Temp_Team_Picked.copy()
+                        for indiv in limited_indiv:
+                            new_temp_team.pop(indiv)
+                    else:       # else just double name the Temp_Team_picked.
+                        new_temp_team = Temp_Team_Picked
+
+                    if Is_Abs_limitation == False and Is_partial_limitation==False:     #False and False: With considering all the limitation days and tags: OK
+                        if SetShift.Day_Capacity_status>=len(new_temp_team):  # Be happy:)
+                                SetShift.Store(Day,new_temp_team)
+                                Individuals_picked_for_the_day.append(new_temp_team)
+                        
+                        if SetShift.Day_Capacity_status()=='Zero':
                             break
-                    elif SetShift.Permission_Checker(Temp_Team_Picked)==(True, False):   #True, False: absolute limitations: OK, but other limitation days not totally OK.
-                        Remained_but_Partial_limitation.append(Temp_Team_Picked)
-                        Remained_in_Lottery.pop(Temp_Team_Picked)
-                        pass
+                    elif Is_Abs_limitation==True and Is_partial_limitation==False:   #True, False: absolute limitations: OK, but other limitation days not totally OK.
+                        Remained_but_Partial_limitation.append(new_temp_team)
+                        Remained_in_Lottery.pop(new_temp_team)
+
                     else:                                                                # False, False: when even absolute limitation days are not OK.
-                        Remained_in_Lottery.pop(Temp_Team_Picked)
+                        Remained_in_Lottery.pop(new_temp_team)
                 else:                                                                    # now we try the teams whom have this day in their limitation days.
                     for Partial_limited_team in Remained_but_Partial_limitation:
                         while True:
-                            if SetShift.Day_Fullness_status==len(Partial_limited_team):  # Be happy:)
+                            if SetShift.Day_Capacity_status>=len(Partial_limited_team):  # Be happy:)
                                 SetShift.Store(Day,Partial_limited_team)
+                                Individuals_picked_for_the_day.append(Partial_limited_team)
+
+                            if SetShift.Day_Capacity_status()=='Zero':
+                                break
+
                             else:                                                        # this is when we should break some teams. :(
-                                pass        ### in-progress
+                                
+                                pass        ### in-progress: decide what tags should be broken
+                                
+            SetShift.Counter().update()     #updating the counter with this specific day information.
+            for indiv in Temp_Individuals:
+                Temp_Individuals.pop(indiv)        # this line is to prevent 48 hour shifts.    :)
 
 
 
