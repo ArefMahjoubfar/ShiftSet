@@ -126,6 +126,29 @@ class SetShift():
     def Day_Capacity_status():      ###In-Progress
         
         pass
+    
+    def find_greatest_team(Teams):      # this func finds the the team with most members.
+        # turn the Teams dict into a list, sort it based on the length of the values which are lists of members:
+        Teams_ListForm_Sorted=sorted(list(Teams.items()), key= lambda x:len(x[1]), reverse=True)
+        return Teams_ListForm_Sorted[0]     # returns the greatest team in a tuple of TeamID and Members 
+    
+
+    def Team_breaker(Team):    # this function breaks a team
+        new_Team_ID = 'T'+ str(next(ID_generator))  # this ID belongs to the new team(members, n=2) that will be created.
+
+        # randomly select two members of the team: -> a list
+        Temp_selected_2_indiv=random.sample(Team, k=2)
+        Temp_New_Team= {new_Team_ID:Temp_selected_2_indiv}  # 1st newly derived team. member number: 2
+        Temp_Updated_Teams = Teams.copy()
+
+        # it removes the 2 individuals(1st new derived team) we selected before from the Temp_Updated_Teams: i,e: the second new team derived:
+        [Temp_Updated_Teams[0][1].remove(i) for i in Temp_selected_2_indiv]
+
+        # Update Temp_Updated_Teams
+        Temp_Updated_Teams.update(Temp_New_Team)
+
+        return Temp_Updated_Teams
+             
 
     def Early_Set():
         for Day in Days:
@@ -169,7 +192,11 @@ class SetShift():
                                 break
 
                             else:                                                        # this is when we should break some teams. :(
-                                
+                                Teams_sorted =sorted(list(dict.items()),key=lambda x:len(x[1]),reverse=True)     # a list of key values of teams to sort them and find the team with most memebers.
+                                Greatest_team = Teams_sorted[0][1]      # members of the team with most members
+                                new_2_indiv_team = random.sample(Greatest_team[0][1],k=2)
+                                new_remained_members_as_a_team=  for i in Greatest_team.pop(new) 
+
                                 pass        ### in-progress: decide what tags should be broken
                                 
             SetShift.Counter().update()     #updating the counter with this specific day information.
