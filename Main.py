@@ -192,10 +192,7 @@ class SetShift():
                                 break
 
                             else:                                                        # this is when we should break some teams. :(
-                                Teams_sorted =sorted(list(dict.items()),key=lambda x:len(x[1]),reverse=True)     # a list of key values of teams to sort them and find the team with most memebers.
-                                Greatest_team = Teams_sorted[0][1]      # members of the team with most members
-                                new_2_indiv_team = random.sample(Greatest_team[0][1],k=2)
-                                new_remained_members_as_a_team=  for i in Greatest_team.pop(new) 
+                                
 
                                 pass        ### in-progress: decide what tags should be broken
                                 
