@@ -134,6 +134,7 @@ class SetShift():
     
 
     def Team_breaker(Team:tuple)->dict:    # this function breaks a team. input type is like: ('T156',[member1,member2,member3,member4])
+        '''Function: it breaks the input team into two teams: one 2 member team, team without those two members'''
         new_Team_ID = 'T'+ str(next(ID_generator))  # this ID belongs to the new team(members, n=2) that will be created.
 
         # randomly select two members of the team: -> a list
@@ -147,7 +148,7 @@ class SetShift():
         # Update Temp_Updated_Teams
         Temp_Updated_Teams.update(Temp_New_Team)
 
-        return Temp_Updated_Teams
+        return Temp_Updated_Teams       
              
 
     def Early_Set():
