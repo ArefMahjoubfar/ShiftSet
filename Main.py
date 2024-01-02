@@ -133,11 +133,11 @@ class SetShift():
         return Teams_ListForm_Sorted[0]     # returns the greatest team in a tuple of TeamID and Members 
     
 
-    def Team_breaker(Team):    # this function breaks a team
+    def Team_breaker(Team:tuple)->dict:    # this function breaks a team. input type is like: ('T156',[member1,member2,member3,member4])
         new_Team_ID = 'T'+ str(next(ID_generator))  # this ID belongs to the new team(members, n=2) that will be created.
 
         # randomly select two members of the team: -> a list
-        Temp_selected_2_indiv=random.sample(Team, k=2)
+        Temp_selected_2_indiv=random.sample(Team[1], k=2)
         Temp_New_Team= {new_Team_ID:Temp_selected_2_indiv}  # 1st newly derived team. member number: 2
         Temp_Updated_Teams = Teams.copy()
 
