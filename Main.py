@@ -3,6 +3,8 @@ import random
 import datetime
 import csv
 
+
+'''check if we use for example len() on a dictionary of {TeamID:Memebers_list} to edit...'''
 #-----------------------------------------------------------------------------------------------------------------------
 def ID_Generator(Start:int)->int:
     counter=Start
@@ -113,7 +115,7 @@ class SetShift():
     def Start():
         pass
 
-    def Random_ID_Picker(elements):     #Done
+    def Random_ID_Picker(elements):     #       Notice: edit the input var. now it takes an iterable of members. but in some line we give it the {TeamID:Members_list}.
         _, weights=SetShift.Counter(elements)
         return(random.choices(elements, weights=(weights), k=1))
     
@@ -133,12 +135,12 @@ class SetShift():
         return Teams_ListForm_Sorted[0]     # returns the greatest team in a tuple of TeamID and Members 
     
 
-    def Team_breaker(Team:tuple)->dict:    # this function breaks a team. input type is like: ('T156',[member1,member2,member3,member4])
+    def Team_breaker(Team:tuple)->(dict, dict):    # this function breaks a team. input type is like: ('T156',[member1,member2,member3,member4])
         '''Function: it breaks the input team into two teams: one 2 member team, team without those two members'''
         new_Team_ID = 'T'+ str(next(ID_generator))  # this ID belongs to the new team(members, n=2) that will be created.
-
+        Team_ID, Team_Members = Team
         # randomly select two members of the team: -> a list
-        Temp_selected_2_indiv=random.sample(Team[1], k=2)
+        Temp_selected_2_indiv=random.sample(Team_Members, k=2)
         Temp_New_Team= {new_Team_ID:Temp_selected_2_indiv}  # 1st newly derived team. member number: 2
         Temp_Updated_Teams = Teams.copy()
 
@@ -148,7 +150,7 @@ class SetShift():
         # Update Temp_Updated_Teams
         Temp_Updated_Teams.update(Temp_New_Team)
 
-        return Temp_Updated_Teams       
+        return Temp_Updated_Teams, Temp_New_Team       
              
 
     def Early_Set():
@@ -164,17 +166,20 @@ class SetShift():
                     
                     if Is_some_member_selected_yesterday==True:     # if any member of that chosen temp_team was selected yesterday, we remove it from the temp team.
                         new_temp_team = Temp_Team_Picked.copy()
-                        for indiv in limited_indiv:
-                            new_temp_team.pop(indiv)
+                        for indiv in limited_indiv:                 ###****************#########__RECHECK PLEASE__#####******************###
+                            new_temp_team.pop(indiv)                
+                        ### check for the situation if all the members are popped out and the team is emptied. it is just an useless ID.
+                        if len(new_temp_team) ==0:      ### check if the len func works properly. it should be used on the list member of that ID. not on the key of Dictionary. 
+                            break       # to get a new random Temp_Team_Picked
                     else:       # else just double name the Temp_Team_picked.
                         new_temp_team = Temp_Team_Picked
 
                     if Is_Abs_limitation == False and Is_partial_limitation==False:     #False and False: With considering all the limitation days and tags: OK
-                        if SetShift.Day_Capacity_status>=len(new_temp_team):  # Be happy:)
+                        if SetShift.Day_Capacity_status(Day)>=len(new_temp_team):  # Be happy:)
                                 SetShift.Store(Day,new_temp_team)
                                 Individuals_picked_for_the_day.append(new_temp_team)
                         
-                        if SetShift.Day_Capacity_status()=='Zero':
+                        if SetShift.Day_Capacity_status(Day)=='Zero':
                             break
                     elif Is_Abs_limitation==True and Is_partial_limitation==False:   #True, False: absolute limitations: OK, but other limitation days not totally OK.
                         Remained_but_Partial_limitation.append(new_temp_team)
@@ -182,25 +187,46 @@ class SetShift():
 
                     else:                                                                # False, False: when even absolute limitation days are not OK.
                         Remained_in_Lottery.pop(new_temp_team)
-                else:                                                                    # now we try the teams whom have this day in their limitation days.
-                    for Partial_limited_team in Remained_but_Partial_limitation:
-                        while True:
-                            if SetShift.Day_Capacity_status>=len(Partial_limited_team):  # Be happy:)
-                                SetShift.Store(Day,Partial_limited_team)
-                                Individuals_picked_for_the_day.append(Partial_limited_team)
+                else:
+                    while True:                                                                    # now we try the teams whom have this day in their partial limitation days.
+                        for Partial_limited_team in Remained_but_Partial_limitation:
+                            
+                                if SetShift.Day_Capacity_status(Day)>=len(Partial_limited_team):      # Be happy:)
+                                    SetShift.Store(Day,Partial_limited_team)
+                                    Individuals_picked_for_the_day.append(Partial_limited_team)
 
-                            if SetShift.Day_Capacity_status()=='Zero':
-                                break
+                                    if SetShift.Day_Capacity_status(Day)=='Zero':
+                                        break
 
-                            else:                                                        # this is when we should break some teams. :(
-                                
+                                else:                                                        # this is when we should break some teams. :(
+                                ### in-progress
+                                    
+                                    Greatest_Team = SetShift.find_greatest_team(Remained_in_Lottery)        # find the greatest team among those teams are available.
+                                    Greatest_Team_ID, Greatest_Team_Members=Greatest_Team
+                                    Remained_in_Lottery, new_temp_team = SetShift.Team_breaker(Greatest_Team)      # break the greatest team into two team and update the Remained_in_Lottery.
+                                    Greatest_Team={Greatest_Team_ID:Greatest_Team_Members}
+                                    if SetShift.Day_Capacity_status(Day)>=len(Greatest_Team_Members):       # Be happy:)
+                                        SetShift.Store(Day, Greatest_Team)
+                                        Individuals_picked_for_the_day.append(Greatest_Team)
 
-                                pass        ### in-progress: decide what tags should be broken
+                                    else:
+                                        if SetShift.Day_Capacity_status(Day)>=len(new_temp_team):         # Behappy:)
+                                            SetShift.Store(Day, new_temp_team)
+                                            Individuals_picked_for_the_day.append(new_temp_team)
+                                        
+                                        else:       # it means from day capacity just one position has remained.
+                                            # so we choose a random individual from the greatest team.
+                                            Selected_Indiviual = random.sample(Greatest_Team_Members, k=1)
+                                            new_indiv_To_Team_ID = 'T'+str(next(ID_generator))
+                                            new_indiv_Temp_team = {new_indiv_To_Team_ID:[Selected_Indiviual]}
+                                            SetShift.Store(Day, new_indiv_Temp_team)
+                                            Individuals_picked_for_the_day.append(new_indiv_Temp_team)
+                                            break
                                 
             SetShift.Counter().update()     #updating the counter with this specific day information.
             for indiv in Temp_Individuals:
                 Temp_Individuals.pop(indiv)        # this line is to prevent 48 hour shifts.    :)
-
+                  ###****************#########__RECHECK PLEASE__#####******************###
 
 
 
